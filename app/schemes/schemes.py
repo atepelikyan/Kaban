@@ -1,4 +1,5 @@
 import enum
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
 class UserCreate(BaseModel):
@@ -33,3 +34,8 @@ class TicketCreate(BaseModel):
     title: str
     description: str
     status: TicketStatus = TicketStatus.to_do
+
+class TicketUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: TicketStatus = TicketStatus.in_progress
