@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import jwt
-from app.db.db import SessionLocal
 from app.deps.deps import get_db
 from app.models.models import User
 

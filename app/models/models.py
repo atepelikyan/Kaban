@@ -1,8 +1,9 @@
 from typing import List
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Enum, Table
+from sqlalchemy import Column, ForeignKey, Integer, String, Enum, Table
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.db import Base
-import enum
+
+from app.schemes.schemes import TicketStatus
 
 user_ticket = Table(
     "users_tickets",
@@ -17,11 +18,6 @@ board_user = Table(
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("board_id", ForeignKey("boards.id"), primary_key=True)
 )
-
-class TicketStatus(enum.Enum):
-    to_do = "to do"
-    in_progress = "in progress"
-    done = "done"
 
 class BaseModel(Base): #should I add a table name?
     __allow_unmapped__ = True
