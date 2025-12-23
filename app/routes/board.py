@@ -49,7 +49,7 @@ async def delete_board(board_id: int, user: User = Depends(get_current_user), db
     return "done"
 
 @router.put("/{board_id}", status_code=status.HTTP_200_OK)
-async def update_user(board_id: int, board_update: BoardUpdate, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_board(board_id: int, board_update: BoardUpdate, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     board = db.query(Board).filter(Board.id == board_id).first()
     if not board:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Board not found")
@@ -57,6 +57,7 @@ async def update_user(board_id: int, board_update: BoardUpdate, logged_user: Use
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     board.title = board_update.title
     board.description = board_update.description
+    db.commit()
 
     return board
     
@@ -72,5 +73,7 @@ async def add_user_to_board(board_id: int, user_email: str, logged_user: User = 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     board.users_assigned.append(user)
+    db.commit()
+    db.refresh(board)
 
     return board

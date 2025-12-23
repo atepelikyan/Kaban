@@ -8,7 +8,7 @@ from app.deps.deps import get_db
 from app.models.models import User
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 TIME_EXPIRE_MINUTES = 30
 SECRET_KEY = "aralavara"

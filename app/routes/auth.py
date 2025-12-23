@@ -6,7 +6,7 @@ from app.deps.deps import get_db
 from app.models.models import User
 from app.schemes.schemes import UserCreate
 
-router = APIRouter(prefix="auth", tags=["authorization"])
+router = APIRouter(prefix="/auth", tags=["authorization"])
 
 @router.post("/registration", status_code=status.HTTP_201_CREATED)
 async def registration(form_data: UserCreate, db: Session = Depends(get_db)):

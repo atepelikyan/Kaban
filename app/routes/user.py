@@ -47,3 +47,19 @@ async def remove_user_board(id: int, user_email:str, logged_user: User = Depends
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     
     board.users_assigned.remove(user)
+    db.commit()
+
+    return "done"
+
+@router.delete("/{user_email}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_email: str, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if logged_user.email != "admin" or logged_user.email != user_email:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+    user = db.query(User).filter(User.email == user_email).first()
+    if not user:
+        raise HTTPException(stattus_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    db.delete(user)
+    db.commit()
+
+    return "done"

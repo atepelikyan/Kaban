@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from app.core.security import create_user_token, get_current_user, get_user, hash_password, validate_password
-from app.models.models import Board, User
-from app.deps.deps import get_db
-from app.schemes.schemes import BoardCreate, BoardDelete, BoardUpdate, UserCreate
+from fastapi import FastAPI
+from app.routes import auth, board, ticket, user
 
 app = FastAPI()
+app.include_router(auth.router)
+app.include_router(board.router)
+app.include_router(ticket.router)
+app.include_router(user.router)
 
 @app.get("/")
 async def main():
