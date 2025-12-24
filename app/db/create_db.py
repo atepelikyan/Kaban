@@ -1,5 +1,5 @@
 from app.db.db import Base, engine
-from app.models.models import User
+from app.models.models import User, Ticket, Board, user_ticket, board_user
 
 
 def init_models():

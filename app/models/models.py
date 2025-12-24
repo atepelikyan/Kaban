@@ -23,7 +23,7 @@ class BaseModel(Base): #should I add a table name?
     __allow_unmapped__ = True
     __abstract__ = True
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
 class User(BaseModel):
     __tablename__ = "users"

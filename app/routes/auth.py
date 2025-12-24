@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 from app.core.security import create_user_token, get_current_user, get_user, hash_password, validate_password
-from app.deps.deps import get_db
+from app.deps.deps import db_dependency
 from app.models.models import User
 from app.schemes.schemes import UserCreate
 
 router = APIRouter(prefix="/auth", tags=["authorization"])
 
 @router.post("/registration", status_code=status.HTTP_201_CREATED)
-async def registration(form_data: UserCreate, db: Session = Depends(get_db)):
+async def registration(form_data: UserCreate, db: db_dependency):
     if get_user(form_data.email, db):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="the user is already registrated")
     
@@ -23,7 +22,7 @@ async def registration(form_data: UserCreate, db: Session = Depends(get_db)):
     return {"User" : new_user}
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(db: db_dependency, form_data: OAuth2PasswordRequestForm = Depends()):
     user = get_user(form_data.username, db)
     if not user or not validate_password(form_data.password, user.hashed_pwd):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="bad credentials")

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from app.core.security import get_current_user
-from app.deps.deps import get_db
+from app.deps.deps import db_dependency
 from app.models.models import Board, Ticket, User
 from app.schemes.schemes import TicketCreate, TicketUpdate
 
@@ -12,7 +11,7 @@ async def get_tickets(logged_user: User = Depends(get_current_user)):
     return logged_user.tickets
 
 @router.post("/{board_id}", status_code=status.HTTP_201_CREATED)
-async def create_ticket(board_id: int, ticket_form: TicketCreate, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_ticket(db: db_dependency, board_id: int, ticket_form: TicketCreate, logged_user: User = Depends(get_current_user)):
     board = db.query(Board).filter(Board.id == board_id).first()
     if not board:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Board no found")
@@ -26,7 +25,7 @@ async def create_ticket(board_id: int, ticket_form: TicketCreate, logged_user: U
     return new_ticket
 
 @router.post("/{ticket_id}/{user_email}", status_code=status.HTTP_201_CREATED)
-async def assign_user(ticket_id: int, user_email: str, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def assign_user(db: db_dependency, ticket_id: int, user_email: str, logged_user: User = Depends(get_current_user)):
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
@@ -41,7 +40,7 @@ async def assign_user(ticket_id: int, user_email: str, logged_user: User = Depen
     return ticket
 
 @router.put("/", status_code=status.HTTP_201_CREATED)
-async def update_ticket(ticket_id: int, ticket_form: TicketUpdate, db: Session = Depends(get_db)):
+async def update_ticket(ticket_id: int, ticket_form: TicketUpdate, db: db_dependency):
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket no found")
@@ -56,7 +55,7 @@ async def update_ticket(ticket_id: int, ticket_form: TicketUpdate, db: Session =
     return ticket
 
 @router.delete("/", status_code=status.HTTP_201_CREATED)
-async def delete_ticket(ticket_id: int, db: Session = Depends(get_db)):
+async def delete_ticket(ticket_id: int, db: db_dependency):
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket no found")
@@ -67,7 +66,7 @@ async def delete_ticket(ticket_id: int, db: Session = Depends(get_db)):
     return "done"
 
 @router.delete("/{ticket_id}/{user_email}", status_code=status.HTTP_204_NO_CONTENT)
-async def assign_user(ticket_id: int, user_email: str, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def assign_user(db: db_dependency, ticket_id: int, user_email: str, logged_user: User = Depends(get_current_user)):
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")

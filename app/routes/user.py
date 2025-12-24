@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from app.core.security import get_current_user
-from app.deps.deps import get_db
+from app.deps.deps import db_dependency
 from app.models.models import Board, User
 from app.schemes.schemes import UserUpdate
 
@@ -21,7 +20,7 @@ async def get_users_board(user_email: str, logged_user: User = Depends(get_curre
     return logged_user.boards_assigned
 
 @router.put("/{user_email}")
-async def update_user(user_email: str, update_data: UserUpdate, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_user(db: db_dependency, user_email: str, update_data: UserUpdate, logged_user: User = Depends(get_current_user)):
     if logged_user.email != user_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     logged_user.first_name = update_data.first_name
@@ -34,7 +33,7 @@ async def update_user(user_email: str, update_data: UserUpdate, logged_user: Use
 
 
 @router.delete("/{user_email}/boards/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_user_board(id: int, user_email:str, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def remove_user_board(db: db_dependency, id: int, user_email:str, logged_user: User = Depends(get_current_user)):
     user = db.query(User).filter(User.email == user_email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -52,7 +51,7 @@ async def remove_user_board(id: int, user_email:str, logged_user: User = Depends
     return "done"
 
 @router.delete("/{user_email}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_email: str, logged_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_user(db: db_dependency, user_email: str, logged_user: User = Depends(get_current_user)):
     if logged_user.email != "admin" or logged_user.email != user_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
     user = db.query(User).filter(User.email == user_email).first()
