@@ -11,3 +11,8 @@ wheels/
 
 #Environmental variables
 .env
+
+# --- Ruff / Linting ---
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
