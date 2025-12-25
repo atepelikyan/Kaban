@@ -16,7 +16,3 @@ async def main():
 @app.get("/healthy")
 def health_check():
     return {"status": "Healthy"}
-
-
-# uvicorn, imports, service, repository, add router
-# tickets - create, get, update, delete, assign to, see one, see all, see your, see assigned to someone, mark

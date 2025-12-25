@@ -20,7 +20,7 @@ board_user = Table(
 )
 
 
-class BaseModel(Base):  # should I add a table name?
+class BaseModel(Base):
     __allow_unmapped__ = True
     __abstract__ = True
 
