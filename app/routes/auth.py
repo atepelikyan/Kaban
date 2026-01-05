@@ -2,12 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.security import (
     create_user_token,
-    get_current_user,
     get_user,
     hash_password,
     validate_password,
 )
-from app.deps.deps import db_dependency
+from app.deps.deps import db_dependency, user_dependency
 from app.models.models import User
 from app.schemes.schemes import UserCreate
 
@@ -50,5 +49,5 @@ async def login(db: db_dependency, form_data: OAuth2PasswordRequestForm = Depend
 
 
 @router.get("/me", status_code=status.HTTP_200_OK)
-async def current_user(user: User = Depends(get_current_user)):
+async def current_user(user: user_dependency):
     return user

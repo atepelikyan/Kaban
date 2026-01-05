@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends
-from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import jwt
-from app.deps.deps import get_db
+from sqlalchemy.orm import Session
+from app.db.session import get_db
 from app.models.models import User
 from dotenv import load_dotenv
 import os
@@ -42,7 +42,7 @@ def create_user_token(payload: dict, expire_minute=TIME_EXPIRE_MINUTES):
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
 ):
     user_decoded = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
     user_email = user_decoded.get("sub")

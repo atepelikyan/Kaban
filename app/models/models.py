@@ -35,9 +35,11 @@ class User(BaseModel):
     email: Mapped[str] = mapped_column(String, nullable=False)
     hashed_pwd: Mapped[str] = mapped_column(String, nullable=False)
     tickets: Mapped[List["Ticket"]] = relationship(
-        back_populates="assigned_users", secondary="users_tickets"
+        back_populates="assigned_users", secondary="users_tickets", cascade="delete"
     )
-    boards_owned: Mapped[List["Board"]] = relationship(back_populates="owner")
+    boards_owned: Mapped[List["Board"]] = relationship(
+        back_populates="owner", cascade="delete"
+    )
     boards_assigned: Mapped[List["Board"]] = relationship(
         back_populates="users_assigned", secondary="boards_users"
     )
@@ -52,7 +54,7 @@ class Ticket(BaseModel):
         Enum(TicketStatus), default=TicketStatus.to_do
     )
     assigned_users: Mapped[List["User"]] = relationship(
-        back_populates="tickets", secondary="users_tickets"
+        back_populates="tickets", secondary="users_tickets", cascade="delete"
     )
     board: Mapped["Board"] = relationship(back_populates="tickets")
     board_id: Mapped[int] = mapped_column(ForeignKey("boards.id"))
@@ -63,7 +65,9 @@ class Board(BaseModel):
 
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)
-    tickets: Mapped[List["Ticket"]] = relationship(back_populates="board")
+    tickets: Mapped[List["Ticket"]] = relationship(
+        back_populates="board", cascade="delete"
+    )
     owner: Mapped[User] = relationship(back_populates="boards_owned")
     owned_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     users_assigned: Mapped[List["User"]] = relationship(

@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from app.core.security import get_current_user
-from app.deps.deps import db_dependency
+from fastapi import APIRouter, HTTPException, status
+from app.deps.deps import db_dependency, user_dependency
 from app.models.models import Board, User
 from app.schemes.schemes import BoardCreate, BoardUpdate
 
@@ -8,9 +7,7 @@ router = APIRouter(prefix="/board", tags=["board"])
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-async def get_all_boards(
-    db: db_dependency, logged_user: User = Depends(get_current_user)
-):
+async def get_all_boards(db: db_dependency, logged_user: user_dependency):
     if logged_user.first_name != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
@@ -21,12 +18,11 @@ async def get_all_boards(
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_board(
-    board: BoardCreate, db: db_dependency, user=Depends(get_current_user)
-):
+async def create_board(board: BoardCreate, db: db_dependency, user: user_dependency):
     new_board = Board(title=board.title, description=board.description)
     new_board.owner = user
     new_board.users_assigned.append(user)
+    db.add(new_board)
     db.commit()
     db.refresh(new_board)
 
@@ -34,13 +30,14 @@ async def create_board(
 
 
 @router.get("/{board_id}", status_code=status.HTTP_200_OK)
-async def get_board(db: db_dependency, board_id: int, user=Depends(get_current_user)):
+async def get_board(db: db_dependency, board_id: int, user: user_dependency):
     board = db.query(Board).filter(Board.id == board_id).first()
     if not board:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Board not present"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Board not present"
         )
     if user not in board.users_assigned:
+        print(user, board.users_assigned)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
         )
@@ -49,13 +46,11 @@ async def get_board(db: db_dependency, board_id: int, user=Depends(get_current_u
 
 
 @router.delete("/{board_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_board(
-    db: db_dependency, board_id: int, user: User = Depends(get_current_user)
-):
+async def delete_board(db: db_dependency, board_id: int, user: user_dependency):
     board = db.query(Board).filter(Board.id == board_id).first()
     if not board:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Board not present"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Board not present"
         )
     if board.owner.email != user.email:
         raise HTTPException(
@@ -72,7 +67,7 @@ async def update_board(
     db: db_dependency,
     board_id: int,
     board_update: BoardUpdate,
-    logged_user: User = Depends(get_current_user),
+    logged_user: user_dependency,
 ):
     board = db.query(Board).filter(Board.id == board_id).first()
     if not board:
@@ -97,7 +92,7 @@ async def add_user_to_board(
     db: db_dependency,
     board_id: int,
     user_email: str,
-    logged_user: User = Depends(get_current_user),
+    logged_user: user_dependency,
 ):
     board = db.query(Board).filter(Board.id == board_id).first()
     if not board:
@@ -113,7 +108,7 @@ async def add_user_to_board(
         raise HTTPException(status_code=404, detail="User not found")
     if user in board.users_assigned:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="User is already assigned"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User is already assigned"
         )
     board.users_assigned.append(user)
     db.commit()
