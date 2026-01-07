@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://postgres:bibishun666@db:5432/kaban
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - kaban-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: bibishun666
+      POSTGRES_DB: kaban
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - kaban-network
+
+networks:
+  kaban-network:
+    driver: bridge
+
+volumes:
+  db_data:
