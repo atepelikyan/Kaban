@@ -32,19 +32,19 @@ def validate_password(plain_pwd, hashed_pwd):
     return pwd_context.verify(plain_pwd, hashed_pwd)
 
 
-def create_user_token(payload: dict, expire_minute=TIME_EXPIRE_MINUTES):
+def create_user_token(payload: dict, key=SECRET_KEY, expire_minute=TIME_EXPIRE_MINUTES):
     to_encode = payload.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=expire_minute)
     payload.update({"exp": expire})
-    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(to_encode, key, algorithm=ALGORITHM)
 
     return token
 
 
 def get_current_user(
-    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), key=SECRET_KEY
 ):
-    user_decoded = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+    user_decoded = jwt.decode(token, key, algorithms=ALGORITHM)
     user_email = user_decoded.get("sub")
     user = db.query(User).filter(User.email == user_email).first()
 

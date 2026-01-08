@@ -5,7 +5,6 @@ import pytest
 from sqlalchemy import text
 from app.core.security import (
     ALGORITHM,
-    SECRET_KEY,
     create_user_token,
     get_current_user,
     hash_password,
@@ -48,13 +47,6 @@ def test_user():
     db.close()
 
 
-@pytest.fixture()
-def test_db():
-    db = TestingSessionLocal()
-    yield db
-    db.close
-
-
 def test_get_user(test_user):
     db = TestingSessionLocal()
     user = db.query(User).filter(User.email == test_user.email).first()
@@ -81,9 +73,10 @@ def test_validate_pwd():
 
 def test_create_user_token():
     payload = {"sub": "hopar"}
-    token = create_user_token(payload)
+    mock_key = "mockkey"
+    token = create_user_token(payload, key=mock_key)
 
-    payload_decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    payload_decoded = jwt.decode(token, mock_key, algorithms=[ALGORITHM])
 
     assert payload_decoded.get("sub") == "hopar"
     assert payload_decoded.get("sub") != "HoPaR"
@@ -95,10 +88,11 @@ def test_get_current_user():
     mock_db = MagicMock()
     mock_user = MagicMock()
     mock_user.email = "testuser"
+    mock_key = "mockkey"
 
     mock_db.query.return_value.filter.return_value.first.return_value = mock_user
     encode = {"sub": "testuser", "id": 1, "role": "admin"}
-    token = jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(encode, mock_key, algorithm=ALGORITHM)
 
-    user = get_current_user(db=mock_db, token=token)
+    user = get_current_user(db=mock_db, token=token, key=mock_key)
     assert user.email == mock_user.email
