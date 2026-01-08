@@ -28,7 +28,8 @@ async def registration(form_data: UserCreate, db: db_dependency):
         email=form_data.email,
         hashed_pwd=hashed_password,
     )
-
+    res = db.query(User).all()
+    print(res)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

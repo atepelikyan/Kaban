@@ -45,6 +45,7 @@ def test_user():
     with engine.connect() as connection:
         connection.execute((text("DELETE FROM users;")))
         connection.commit()
+    db.close()
 
 
 @pytest.fixture()
