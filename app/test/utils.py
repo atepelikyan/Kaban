@@ -6,7 +6,7 @@ from app.db.db import Base
 from app.main import app
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:////app/testdb.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///app/testdb.db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
