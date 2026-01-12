@@ -37,7 +37,6 @@ async def get_board(db: db_dependency, board_id: int, user: user_dependency):
             status_code=status.HTTP_404_NOT_FOUND, detail="Board not present"
         )
     if user not in board.users_assigned:
-        print(user, board.users_assigned)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
         )

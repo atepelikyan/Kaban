@@ -12,7 +12,6 @@ from app.core.security import (
 )
 from app.models.models import User
 from jose import jwt
-
 from app.test.utils import TestingSessionLocal, engine, Base
 
 
