@@ -10,6 +10,7 @@ services:
       - db
     networks:
       - kaban-network
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   db:
     image: postgres:15-alpine
